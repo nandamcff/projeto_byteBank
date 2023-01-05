@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
@@ -23,7 +24,7 @@ namespace projeto_byteBank
             Console.WriteLine("1. Sacar dinheiro");
             Console.WriteLine("2. Depositar dinheiro");
             Console.WriteLine("3. Transferir dinheiro");
-            Console.WriteLine("0. Voltar ao Menu Principal");
+            Console.WriteLine("4. Voltar ao Menu Principal");
             Console.WriteLine("Digite a opção desejada: ");
         }
 
@@ -47,19 +48,37 @@ namespace projeto_byteBank
             Console.WriteLine("Favor digitar seu CPF: ");
             string cpfParaDeletar = Console.ReadLine();
             int indexParaDeletar = cpfs.FindIndex(cpf => cpf == cpfParaDeletar);
-            
-            if(indexParaDeletar == -1)
+
+            if (indexParaDeletar == -1)
             {
-                Console.WriteLine("CPF não encontrado. Essa conta não existe.");
+                Console.WriteLine("CPF não encontrado. Retornando ao MENU PRINCIPAL.");
             }
+            else
+            {
+                Console.WriteLine("Tem certeza que deseja deletar essa conta?\n 1. SIM    2.NÃO ");
+                int opcaoDeletar = int.Parse(Console.ReadLine());
 
-            cpfs.Remove(cpfParaDeletar);
-            titulares.RemoveAt(indexParaDeletar);
-            dataNascimentos.RemoveAt(indexParaDeletar);
-            senhas.RemoveAt(indexParaDeletar);
-            saldos.RemoveAt(indexParaDeletar);
+                if(opcaoDeletar == 1)
+                {
+                    cpfs.Remove(cpfParaDeletar);
+                    titulares.RemoveAt(indexParaDeletar);
+                    dataNascimentos.RemoveAt(indexParaDeletar);
+                    senhas.RemoveAt(indexParaDeletar);
+                    saldos.RemoveAt(indexParaDeletar);
 
-            Console.WriteLine("Sua conta foi deletada.");
+                    Console.WriteLine("Sua conta foi deletada.");
+                }
+                else if (opcaoDeletar == 2)
+                {
+                    Console.WriteLine("Sua conta NÃO foi deletada. Retornando ao MENU PRINCIPAL.");
+                }
+                else
+                {
+                    Console.WriteLine("Opção inválida. Retornando ao MENU PRINCIPAL.");
+                }
+
+               
+            }
 
         }
 
@@ -97,7 +116,7 @@ namespace projeto_byteBank
             
         }
 
-        static void SacarDinheiro(List<string> cpfs, List<double> saldos, List<string>senhas)
+        static void SacarDinheiro(List<string> cpfs, List<double> saldos, List<string> senhas)
         {
             Console.WriteLine("Favor digitar seu CPF: ");
             string cpfParaSacar = Console.ReadLine();
@@ -108,39 +127,41 @@ namespace projeto_byteBank
                 Console.WriteLine("CPF não encontrado. Essa conta não existe.");
             }
 
-            Console.WriteLine("Favor digitar sua senha: ");
-            string senhaParaSacar = Console.ReadLine();
-            indexParaSacar = senhas.FindIndex(senha => senha == senhaParaSacar);
-
-            if (indexParaSacar == -1)
-            {
-                Console.WriteLine("Sua senha foi digitada errada.");
-            }
-            ApresentarQuantiaAcumulada(saldos);
-
-            Console.WriteLine("Digite o valor que você gostaria de sacar: ");
-            double valorParaSacar = double.Parse(Console.ReadLine());
-
-            if(valorParaSacar > saldos.Sum())
-            {
-                Console.WriteLine("Você não possui esse valor na conta.");
-            }
             else
             {
-                Console.WriteLine("Tem certeza que deseja sacar esse valor?\n1.SIM    2.NÃO");
-                int opcao = int.Parse(Console.ReadLine());
+                Console.WriteLine("Favor digitar sua senha: ");
+                string senhaParaSacar = Console.ReadLine();
+                indexParaSacar = senhas.FindIndex(senha => senha == senhaParaSacar);
 
-                if(opcao == 2)
+                if (indexParaSacar == -1)
                 {
-                    Console.WriteLine("Retornando ao Menu.");
+                    Console.WriteLine("Sua senha foi digitada errada.");
+                }
+                ApresentarQuantiaAcumulada(saldos);
+
+                Console.Write("Digite o valor que você gostaria de sacar: R$ ");
+                double valorParaSacar = double.Parse(Console.ReadLine());
+
+                if (valorParaSacar > saldos.Sum())
+                {
+                    Console.WriteLine("Você não possui esse valor na conta.");
                 }
                 else
                 {
-                    Console.WriteLine("Seu saque foi feito com sucesso.");
+                    Console.WriteLine("Tem certeza que deseja sacar esse valor?\n1.SIM    2.NÃO");
+                    int opcao = int.Parse(Console.ReadLine());
+
+                    if (opcao == 2)
+                    {
+                        Console.WriteLine("Retornando ao Menu.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Seu saque foi feito com sucesso.");
+                    }
                 }
             }
         }
-
         static void DepositarDinheiro(List<string> cpfs, List<double> saldos, List<string> senhas)
         {
 
@@ -150,23 +171,32 @@ namespace projeto_byteBank
 
             if (indexParaDepositar == -1)
             {
-                Console.WriteLine("CPF não encontrado. Essa conta não existe.");
+                Console.WriteLine("CPF não encontrado. Retornando ao MENU.");
             }
 
-            Console.WriteLine("Favor digitar sua senha: ");
-            string senhaParaDepositar = Console.ReadLine();
-            indexParaSacar = senhas.FindIndex(senha => senha == senhaParaSacar);
-
-            if (indexParaSacar == -1)
+            else
             {
-                Console.WriteLine("Sua senha foi digitada errada.");
+                Console.Write("Qual valor você gostaria de depositar? R$ ");
+                double valorDepositar = double.Parse(Console.ReadLine());
+
+                Console.WriteLine("Favor digitar sua senha: ");
+                string senhaParaDepositar = Console.ReadLine();
+                indexParaDepositar = senhas.FindIndex(senha => senha == senhaParaDepositar);
+
+                if (indexParaDepositar == -1)
+                {
+                    Console.WriteLine("Sua senha foi digitada errada. Retornando ao MENU.");
+                }
+                else
+                {
+                    
+                    double valorAcumulado =  saldos.Sum() + valorDepositar;
+                    Console.WriteLine($"Seu depósito foi realizado com sucesso. O total acumulado na conta é de R$ {valorAcumulado}");
+                }
             }
         }
 
-        static void TransferirDinheiro((List<string> cpfs, List<double> saldos, List<string> senhas)
-        {
-
-        }
+       
         
 
         public static void Main(string[] args)
@@ -218,21 +248,19 @@ namespace projeto_byteBank
 
                             switch (opcao)
                             {
-                                case 0:
-                                    break;
                                 case 1:
                                     SacarDinheiro(cpfs, saldos, senhas);
                                 break;
                                 case 2:
                                     DepositarDinheiro(cpfs, saldos, senhas);
                                     break;
-                                case 3:
-                                    TransferirDinheiro(cpfs, saldos,senhas);
-                                        break;
+                                case 4:
+                                    break;
+                              
                             }
                             
 
-                        } while (opcao !=0);
+                        } while (opcao !=4);
                         break;
                     
                 }
